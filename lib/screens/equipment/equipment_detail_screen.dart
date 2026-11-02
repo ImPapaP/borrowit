@@ -88,7 +88,11 @@ class _EquipmentDetailScreenState extends State<EquipmentDetailScreen> {
                       ColoredBox(color: style.color.withValues(alpha: 0.10)),
                       Hero(
                         tag: 'equipment-${item.id}',
-                        child: EquipmentImage(item.image),
+                        child: EquipmentImage(
+                          item.image,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
                       ),
                       // Fade into the page at the bottom.
                       DecoratedBox(

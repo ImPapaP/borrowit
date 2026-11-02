@@ -12,6 +12,12 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Ids of the sample items added by the app's "Load sample equipment" button.
+    function isSampleItem(id) {
+      return id in ['laptop', 'projector', 'camera', 'hdmi-cable',
+                    'extension-cord', 'microphone', 'tripod', 'speaker'];
+    }
+
     // Student profiles: each student can only read and write their own.
     match /users/{uid} {
       allow read, write: if signedIn() && request.auth.uid == uid;
@@ -20,7 +26,16 @@ service cloud.firestore {
     // Equipment catalog: any signed-in student can read it.
     match /equipment/{equipmentId} {
       allow read: if signedIn();
-      allow write: if false;
+
+      // "Load sample equipment" may add the sample items while they don't
+      // exist yet. Changing or deleting equipment is done in the console.
+      allow create: if signedIn()
+        && isSampleItem(equipmentId)
+        && request.resource.data.name is string
+        && request.resource.data.quantityAvailable is int
+        && request.resource.data.quantityTotal is int;
+
+      allow update, delete: if false;
     }
 
     // Borrow requests.

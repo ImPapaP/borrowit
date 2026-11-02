@@ -55,8 +55,8 @@ class _EquipmentListViewState extends State<EquipmentListView> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            'Could not load sample equipment. While seeding, Firestore must '
-            'be in test mode (see README).\n$error',
+            'Could not load sample equipment. If some sample items already '
+            'exist, add or edit equipment in the Firebase console.\n$error',
           ),
         ),
       );
@@ -86,8 +86,8 @@ class _EquipmentListViewState extends State<EquipmentListView> {
             icon: Icons.inventory_2_outlined,
             title: 'No equipment yet',
             message: 'Equipment added by the school will appear here.',
-            // Only works while Firestore is in test mode; the final rules
-            // block students from writing equipment.
+            // firestore.rules lets students add the sample items once,
+            // while they don't exist yet.
             action: FilledButton.icon(
               onPressed: _seeding ? null : _seed,
               icon: const Icon(Icons.cloud_upload_outlined),

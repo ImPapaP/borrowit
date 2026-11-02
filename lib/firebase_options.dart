@@ -36,11 +36,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'PASTE_API_KEY_HERE',
-    authDomain: 'PASTE_AUTH_DOMAIN_HERE',
-    projectId: 'PASTE_PROJECT_ID_HERE',
-    storageBucket: 'PASTE_STORAGE_BUCKET_HERE',
-    messagingSenderId: 'PASTE_MESSAGING_SENDER_ID_HERE',
-    appId: 'PASTE_APP_ID_HERE',
+    apiKey: 'AIzaSyCt6vrbKWJ7SRPaziL-wJBrOEqpLQn4lpw',
+    authDomain: 'borrowit-94d1e.firebaseapp.com',
+    projectId: 'borrowit-94d1e',
+    storageBucket: 'borrowit-94d1e.firebasestorage.app',
+    messagingSenderId: '42238913197',
+    appId: '1:42238913197:web:a66d812f621e66acce3424',
+    measurementId: 'G-1S05TZVPPM',
   );
 }

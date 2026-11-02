@@ -170,7 +170,7 @@ flutter run
 
 1. Tap **Create one** and register a student account.
 2. The Equipment tab says **No equipment yet** → tap **Load sample equipment**.
-   (It only works while Firestore is still in test mode.)
+   (The rules let the app add the 8 sample items once, while they don't exist yet.)
 3. Allow notifications when Android asks.
 
 ---
@@ -390,7 +390,7 @@ UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterD
 | Website still shows the old version | Wait for the Render deploy to say **Live**, then refresh the page. |
 | `The current Dart SDK version is …` / version solving failed | Run `flutter upgrade` (Flutter 3.38.1+ is required). |
 | Build error mentioning desugaring, `minSdk` or Java version | Run `dart run tool/setup_platforms.dart` again, or do the manual setup above. |
-| **Load sample equipment** fails with `PERMISSION_DENIED` | The rules from step 6 are already published. Temporarily switch Firestore back to test mode, load the samples, then publish `firestore.rules` again — or add equipment by hand. |
+| **Load sample equipment** fails with `PERMISSION_DENIED` | Some sample items already exist, so the rules block re-adding them. Add or edit equipment in the Firebase console instead. |
 | `PERMISSION_DENIED` when submitting a request | Make sure the published rules are exactly `firestore.rules`. |
 | No notifications | Allow notifications for BorrowIT in the phone's settings. |
 | Reminder came late | Allow **Alarms & reminders** for BorrowIT (see Reminders above). |

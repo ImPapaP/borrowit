@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// away when the device asks for reduced motion.
 
 bool reduceMotion(BuildContext context) =>
-    MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
 /// Fades and slides its child up into place, after an optional delay.
 /// Use [index] to stagger items in a list or grid.
@@ -50,7 +50,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
       return;
     }
     // Cap the stagger so long lists don't wait forever.
-    final step = (widget.index.clamp(0, 10)) * 60;
+    final step = (widget.index > 10 ? 10 : widget.index) * 60;
     Future<void>.delayed(widget.delay + Duration(milliseconds: step), () {
       if (mounted) _controller.forward();
     });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 import 'common.dart';
+import 'motion.dart';
 
 /// Shared layout for the sign-in and sign-up pages: a gradient panel with
 /// the equipment pictures, and the form in a card. Side by side on wide
@@ -25,7 +26,10 @@ class AuthLayout extends StatelessWidget {
     final theme = Theme.of(context);
     final wide = MediaQuery.sizeOf(context).width >= 900;
 
-    final form = Card(
+    final form = FadeSlideIn(
+      delay: const Duration(milliseconds: 150),
+      offset: 32,
+      child: Card(
       elevation: wide ? 0 : 6,
       shadowColor: Colors.black26,
       child: Padding(
@@ -51,6 +55,7 @@ class AuthLayout extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
 
     final back = showBack
@@ -241,7 +246,12 @@ class _AuthHero extends StatelessWidget {
                     runSpacing: large ? 14 : 10,
                     children: [
                       for (var i = 0; i < pictures.length; i++)
-                        Transform.rotate(
+                        FadeSlideIn(
+                          index: i,
+                          delay: const Duration(milliseconds: 250),
+                          child: Floating(
+                          distance: 3.0 + (i % 3) * 2,
+                          child: Transform.rotate(
                           angle: (i.isEven ? -1 : 1) * 0.04,
                           child: Container(
                             width: tileSize,
@@ -262,6 +272,8 @@ class _AuthHero extends StatelessWidget {
                               borderRadius: BorderRadius.circular(large ? 16 : 10),
                               child: EquipmentImage(pictures[i]),
                             ),
+                          ),
+                        ),
                           ),
                         ),
                     ],

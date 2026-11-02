@@ -5,6 +5,7 @@ import '../../models/equipment.dart';
 import '../../services/firestore_service.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import 'equipment_detail_screen.dart';
 
 /// Equipment tab: welcome banner, search, category cards and the grid.
@@ -119,18 +120,22 @@ class _EquipmentListViewState extends State<EquipmentListView> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                child: _WelcomeBanner(
-                  firstName: _firstName,
-                  availableItems: availableItems,
-                  categoryCount: categories.length,
-                  requests: _requests,
+                child: FadeSlideIn(
+                  child: _WelcomeBanner(
+                    firstName: _firstName,
+                    availableItems: availableItems,
+                    categoryCount: categories.length,
+                    requests: _requests,
+                  ),
                 ),
               ),
             ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                child: TextField(
+                child: FadeSlideIn(
+                  delay: const Duration(milliseconds: 120),
+                  child: TextField(
                   controller: _search,
                   onChanged: (value) => setState(() => _query = value),
                   textInputAction: TextInputAction.search,
@@ -149,6 +154,7 @@ class _EquipmentListViewState extends State<EquipmentListView> {
                           ),
                   ),
                 ),
+                ),
               ),
             ),
             SliverToBoxAdapter(
@@ -158,6 +164,7 @@ class _EquipmentListViewState extends State<EquipmentListView> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                   children: [
+                    for (final (i, card) in [
                     _CategoryCard(
                       label: 'All',
                       icon: Icons.apps_rounded,
@@ -174,6 +181,13 @@ class _EquipmentListViewState extends State<EquipmentListView> {
                         count: all.where((e) => e.category == category).length,
                         selected: _category == category,
                         onTap: () => setState(() => _category = category),
+                      ),
+                    ].indexed)
+                      FadeSlideIn(
+                        index: i,
+                        delay: const Duration(milliseconds: 180),
+                        offset: 16,
+                        child: card,
                       ),
                   ],
                 ),
@@ -223,9 +237,16 @@ class _EquipmentListViewState extends State<EquipmentListView> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final item = results[index];
-                      return _EquipmentCard(
-                        equipment: item,
-                        onTap: () => _open(item),
+                      return FadeSlideIn(
+                        key: ValueKey('${_category ?? 'all'}|$_query|${item.id}'),
+                        index: index,
+                        delay: const Duration(milliseconds: 200),
+                        child: Pressable(
+                          child: _EquipmentCard(
+                            equipment: item,
+                            onTap: () => _open(item),
+                          ),
+                        ),
                       );
                     },
                     childCount: results.length,
@@ -292,10 +313,12 @@ class _WelcomeBanner extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(
-                  Icons.backpack_rounded,
-                  color: Colors.white,
-                  size: 28,
+                child: const Floating(
+                  child: Icon(
+                    Icons.backpack_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
               ),
             ],
@@ -363,7 +386,8 @@ class _CategoryCard extends StatelessWidget {
     final cardColor = theme.cardTheme.color ?? theme.colorScheme.surface;
     return Padding(
       padding: const EdgeInsets.only(right: 10),
-      child: Material(
+      child: Pressable(
+        child: Material(
         color: selected ? color : cardColor,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
@@ -422,6 +446,7 @@ class _CategoryCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../../models/equipment.dart';
 import '../../services/firestore_service.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import '../requests/borrow_request_screen.dart';
 
 /// Full information about one piece of equipment, with live availability.
@@ -118,7 +119,9 @@ class _EquipmentDetailScreenState extends State<EquipmentDetailScreen> {
                     constraints: const BoxConstraints(maxWidth: 860),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-                      child: Column(
+                      child: FadeSlideIn(
+                        delay: const Duration(milliseconds: 120),
+                        child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -187,6 +190,7 @@ class _EquipmentDetailScreenState extends State<EquipmentDetailScreen> {
                                 child: tile,
                               ),
                         ],
+                      ),
                       ),
                     ),
                   ),

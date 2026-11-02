@@ -10,6 +10,7 @@ import '../../services/firestore_service.dart';
 import '../../services/local_image_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 
 /// Longest borrowing period a student can choose.
 const int maxBorrowDays = 30;
@@ -234,7 +235,10 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
             ),
             if (_dateNeeded != null && _returnDate != null) ...[
               const SizedBox(height: 12),
-              _LoanLength(start: _dateNeeded!, end: _returnDate!),
+              FadeSlideIn(
+                offset: 12,
+                child: _LoanLength(start: _dateNeeded!, end: _returnDate!),
+              ),
             ],
             const SizedBox(height: 24),
 
@@ -417,11 +421,16 @@ class _LoanLength extends StatelessWidget {
           const SizedBox(height: 10),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: share,
-              minHeight: 8,
-              color: color,
-              backgroundColor: color.withValues(alpha: 0.15),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: share),
+              duration: Duration(milliseconds: reduceMotion(context) ? 0 : 600),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 8,
+                color: color,
+                backgroundColor: color.withValues(alpha: 0.15),
+              ),
             ),
           ),
           const SizedBox(height: 8),

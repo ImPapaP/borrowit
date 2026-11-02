@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'motion.dart';
+
 import '../models/borrow_request.dart';
 import '../models/equipment.dart';
 import '../theme.dart';
@@ -316,12 +318,18 @@ class GradientBanner extends StatelessWidget {
             Positioned(
               right: -40,
               top: -50,
-              child: _Circle(size: 170, opacity: 0.12),
+              child: const Floating(
+                distance: 10,
+                child: _Circle(size: 170, opacity: 0.12),
+              ),
             ),
             Positioned(
               right: 60,
               bottom: -70,
-              child: _Circle(size: 140, opacity: 0.08),
+              child: const Floating(
+                distance: 7,
+                child: _Circle(size: 140, opacity: 0.08),
+              ),
             ),
             Padding(padding: padding, child: child),
           ],
@@ -352,6 +360,20 @@ class _Circle extends StatelessWidget {
 
 /// White number + label used inside a [GradientBanner].
 class BannerStat extends StatelessWidget {
+  static const TextStyle _valueStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: FontWeight.w800,
+    height: 1.1,
+  );
+
+  /// Numbers count up; anything else is shown as is.
+  static Widget _statValue(String value) {
+    final number = int.tryParse(value);
+    if (number == null) return Text(value, style: _valueStyle);
+    return CountUpText(number, style: _valueStyle);
+  }
+
   const BannerStat({
     super.key,
     required this.icon,
@@ -380,15 +402,7 @@ class BannerStat extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  height: 1.1,
-                ),
-              ),
+              _statValue(value),
               Text(
                 label,
                 style: TextStyle(
@@ -507,11 +521,16 @@ class AvailabilityBar extends StatelessWidget {
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: share,
-            minHeight: 10,
-            color: color,
-            backgroundColor: color.withValues(alpha: 0.15),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: share),
+            duration: Duration(milliseconds: reduceMotion(context) ? 0 : 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              minHeight: 10,
+              color: color,
+              backgroundColor: color.withValues(alpha: 0.15),
+            ),
           ),
         ),
       ],

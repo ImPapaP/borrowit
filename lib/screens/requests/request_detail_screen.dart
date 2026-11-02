@@ -7,6 +7,7 @@ import '../../services/notification_service.dart';
 import '../../theme.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/request_widgets.dart';
 
 /// Everything about one request: status progress, dates, purpose, the photo
@@ -184,7 +185,8 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
         child: ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        GradientBanner(
+        FadeSlideIn(
+          child: GradientBanner(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -258,8 +260,12 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
             ],
           ),
         ),
+        ),
         const SizedBox(height: 16),
-        StatusTimeline(status: request.status),
+        FadeSlideIn(
+          delay: const Duration(milliseconds: 150),
+          child: StatusTimeline(status: request.status),
+        ),
         if (request.remarks != null) ...[
           const SizedBox(height: 12),
           Card(

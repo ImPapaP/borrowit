@@ -5,6 +5,7 @@ import '../../models/borrow_request.dart';
 import '../../services/firestore_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/request_widgets.dart';
 import 'request_detail_screen.dart';
 
@@ -84,7 +85,8 @@ class _HistoryViewState extends State<HistoryView> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
           children: [
-            GradientBanner(
+            FadeSlideIn(
+              child: GradientBanner(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -134,6 +136,7 @@ class _HistoryViewState extends State<HistoryView> {
                 ],
               ),
             ),
+            ),
             for (final entry in groups.entries) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 22, 4, 10),
@@ -152,15 +155,21 @@ class _HistoryViewState extends State<HistoryView> {
                   ],
                 ),
               ),
-              for (final request in entry.value)
+              for (final (index, request) in entry.value.indexed)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: RequestCard(
-                    request: request,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) =>
-                            RequestDetailScreen(requestId: request.id),
+                  child: FadeSlideIn(
+                    index: index,
+                    delay: const Duration(milliseconds: 150),
+                    child: Pressable(
+                      child: RequestCard(
+                        request: request,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                RequestDetailScreen(requestId: request.id),
+                          ),
+                        ),
                       ),
                     ),
                   ),

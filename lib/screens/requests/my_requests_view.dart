@@ -4,6 +4,7 @@ import '../../models/borrow_request.dart';
 import '../../services/firestore_service.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/motion.dart';
 import '../../widgets/request_widgets.dart';
 import 'request_detail_screen.dart';
 
@@ -71,7 +72,8 @@ class _MyRequestsViewState extends State<MyRequestsView> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
           children: [
-            GradientBanner(
+            FadeSlideIn(
+              child: GradientBanner(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -117,6 +119,7 @@ class _MyRequestsViewState extends State<MyRequestsView> {
                 ],
               ),
             ),
+            ),
             const SizedBox(height: 18),
             Row(
               children: [
@@ -146,14 +149,22 @@ class _MyRequestsViewState extends State<MyRequestsView> {
                   ),
                 ),
               ),
-            for (final request in shown)
+            for (final (index, request) in shown.indexed)
               Padding(
+                key: ValueKey('${_filter?.name ?? 'all'}|${request.id}'),
                 padding: const EdgeInsets.only(bottom: 10),
-                child: RequestCard(
-                  request: request,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => RequestDetailScreen(requestId: request.id),
+                child: FadeSlideIn(
+                  index: index,
+                  delay: const Duration(milliseconds: 150),
+                  child: Pressable(
+                    child: RequestCard(
+                      request: request,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) =>
+                              RequestDetailScreen(requestId: request.id),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -182,8 +193,15 @@ class _StatusCount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = statusColor(status, Theme.of(context).colorScheme);
-    return Material(
-      color: selected ? Colors.white : Colors.white.withValues(alpha: 0.16),
+    return Pressable(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.white.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -202,8 +220,8 @@ class _StatusCount extends StatelessWidget {
                 child: Icon(statusIcon(status), size: 18, color: color),
               ),
               const SizedBox(height: 6),
-              Text(
-                '$count',
+              CountUpText(
+                count,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -222,6 +240,8 @@ class _StatusCount extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
         ),
       ),
     );

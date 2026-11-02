@@ -7,6 +7,7 @@ import '../services/firestore_service.dart';
 import '../services/notification_service.dart';
 import '../services/request_watcher.dart';
 import '../widgets/common.dart';
+import '../widgets/motion.dart';
 import 'equipment/equipment_list_view.dart';
 import 'requests/history_view.dart';
 import 'requests/my_requests_view.dart';
@@ -23,7 +24,15 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  // Fades the page in when switching tabs (tabs keep their scroll position).
+  late final AnimationController _tabFade = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+    value: 1,
+  );
+
   static const _titles = ['Equipment', 'My Requests', 'History'];
 
   int _tab = 0;
@@ -50,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _tabFade.dispose();
     _watcher.stop();
     final notifications = NotificationService.instance;
     if (notifications.onOpenRequest == _openRequest) {
@@ -107,14 +117,21 @@ class _HomeScreenState extends State<HomeScreen> {
     (Icons.history_outlined, Icons.history, 'History'),
   ];
 
-  void _selectTab(int index) => setState(() => _tab = index);
+  void _selectTab(int index) {
+    if (index == _tab) return;
+    setState(() => _tab = index);
+    if (reduceMotion(context)) return;
+    _tabFade.forward(from: 0);
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final wide = width >= 900;
 
-    final pages = IndexedStack(
+    final pages = FadeTransition(
+      opacity: CurvedAnimation(parent: _tabFade, curve: Curves.easeOut),
+      child: IndexedStack(
       index: _tab,
       children: [
         EquipmentListView(
@@ -124,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
         MyRequestsView(uid: widget.user.uid),
         HistoryView(uid: widget.user.uid),
       ],
+      ),
     );
 
     final initial = (widget.user.displayName ?? widget.user.email ?? '?')

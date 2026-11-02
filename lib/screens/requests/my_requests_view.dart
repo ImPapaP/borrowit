@@ -21,8 +21,12 @@ class _MyRequestsViewState extends State<MyRequestsView> {
   late final Stream<List<BorrowRequest>> _requests =
       FirestoreService.instance.myRequestsStream(widget.uid);
 
+  /// null means "All".
+  RequestStatus? _filter;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<List<BorrowRequest>>(
       stream: _requests,
       builder: (context, snapshot) {
@@ -54,24 +58,95 @@ class _MyRequestsViewState extends State<MyRequestsView> {
         for (final request in active) {
           counts[request.status] = (counts[request.status] ?? 0) + 1;
         }
+        final shown = _filter == null
+            ? active
+            : active.where((r) => r.status == _filter).toList();
+
+        const summary = [
+          RequestStatus.pending,
+          RequestStatus.approved,
+          RequestStatus.borrowed,
+        ];
 
         return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
           children: [
+            GradientBanner(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Your borrowing',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    active.length == 1
+                        ? '1 request in progress'
+                        : '${active.length} requests in progress',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      for (final status in summary)
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              right: status == summary.last ? 0 : 8,
+                            ),
+                            child: _StatusCount(
+                              status: status,
+                              count: counts[status] ?? 0,
+                              selected: _filter == status,
+                              onTap: () => setState(() {
+                                _filter = _filter == status ? null : status;
+                              }),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             Row(
               children: [
-                for (final status in const [
-                  RequestStatus.pending,
-                  RequestStatus.approved,
-                  RequestStatus.borrowed,
-                ])
-                  Expanded(
-                    child: _CountBox(status: status, count: counts[status] ?? 0),
+                Text(
+                  _filter == null ? 'All active requests' : _filter!.label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const Spacer(),
+                if (_filter != null)
+                  TextButton(
+                    onPressed: () => setState(() => _filter = null),
+                    child: const Text('Show all'),
                   ),
               ],
             ),
-            const SizedBox(height: 16),
-            for (final request in active)
+            const SizedBox(height: 8),
+            if (shown.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  'No ${_filter?.label.toLowerCase() ?? ''} requests.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            for (final request in shown)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: RequestCard(
@@ -90,34 +165,64 @@ class _MyRequestsViewState extends State<MyRequestsView> {
   }
 }
 
-class _CountBox extends StatelessWidget {
-  const _CountBox({required this.status, required this.count});
+/// White card inside the banner: status icon, count and name. Tap to filter.
+class _StatusCount extends StatelessWidget {
+  const _StatusCount({
+    required this.status,
+    required this.count,
+    required this.selected,
+    required this.onTap,
+  });
 
   final RequestStatus status;
   final int count;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = statusColor(status, theme.colorScheme);
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Text(
-            '$count',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
-            ),
+    final color = statusColor(status, Theme.of(context).colorScheme);
+    return Material(
+      color: selected ? Colors.white : Colors.white.withValues(alpha: 0.16),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+          child: Column(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: selected ? color.withValues(alpha: 0.14) : Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(statusIcon(status), size: 18, color: color),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: selected ? color : Colors.white,
+                ),
+              ),
+              Text(
+                status.label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: selected
+                      ? const Color(0xFF1A1C24)
+                      : Colors.white.withValues(alpha: 0.9),
+                ),
+              ),
+            ],
           ),
-          Text(status.label, style: theme.textTheme.labelMedium),
-        ],
+        ),
       ),
     );
   }

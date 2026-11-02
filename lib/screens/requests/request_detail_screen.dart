@@ -4,6 +4,7 @@ import '../../models/borrow_request.dart';
 import '../../services/firestore_service.dart';
 import '../../services/local_image_service.dart';
 import '../../services/notification_service.dart';
+import '../../theme.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common.dart';
 import '../../widgets/request_widgets.dart';
@@ -174,45 +175,90 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
             request.status == RequestStatus.approved ||
             request.status == RequestStatus.borrowed);
 
-    return ListView(
+    final color = statusColor(request.status, theme.colorScheme);
+
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: EquipmentImage(
-                request.equipmentImage,
-                width: 72,
-                height: 72,
+        GradientBanner(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color, Color.lerp(color, Colors.black, 0.25)!],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 84,
+                height: 84,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: EquipmentImage(request.equipmentImage),
+                ),
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    request.equipmentName,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (request.equipmentCategory.isNotEmpty)
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      request.equipmentCategory,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                      request.equipmentName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  const SizedBox(height: 6),
-                  StatusChip(request.status),
-                ],
+                    if (request.equipmentCategory.isNotEmpty)
+                      Text(
+                        request.equipmentCategory,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon(request.status), size: 14, color: color),
+                          const SizedBox(width: 4),
+                          Text(
+                            request.status.label,
+                            style: TextStyle(
+                              color: color,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         StatusTimeline(status: request.status),
         if (request.remarks != null) ...[
           const SizedBox(height: 12),
@@ -296,6 +342,8 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
           ),
         ],
       ],
+        ),
+      ),
     );
   }
 }

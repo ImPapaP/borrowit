@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../widgets/auth_layout.dart';
 import 'login_screen.dart' show emailPattern;
 
 class RegisterScreen extends StatefulWidget {
@@ -59,21 +60,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       labelText: label,
       prefixIcon: Icon(icon),
       suffixIcon: suffix,
-      border: const OutlineInputBorder(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create account')),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
+    return AuthLayout(
+      title: 'Create your account',
+      subtitle: 'Use your school email so staff can verify you.',
+      showBack: true,
+      child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,10 +155,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
               ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

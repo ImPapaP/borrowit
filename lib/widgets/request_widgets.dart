@@ -15,11 +15,22 @@ class RequestCard extends StatelessWidget {
   final BorrowRequest request;
   final VoidCallback? onTap;
 
+  /// "3 days", or null if the dates are missing.
+  String? get _duration {
+    final start = request.dateNeeded;
+    final end = request.returnDate;
+    if (start == null || end == null) return null;
+    final days = dateOnly(end).difference(dateOnly(start)).inDays + 1;
+    return days == 1 ? '1 day' : '$days days';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = CategoryStyle.of(request.equipmentCategory);
+    final color = statusColor(request.status, theme.colorScheme);
+    final duration = _duration;
     return Card(
-      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -27,52 +38,84 @@ class RequestCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: EquipmentImage(
-                  request.equipmentImage,
-                  width: 64,
-                  height: 64,
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  color: style.color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                clipBehavior: Clip.antiAlias,
+                child: EquipmentImage(request.equipmentImage),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      request.equipmentName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      formatDateRange(request.dateNeeded, request.returnDate),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        StatusChip(request.status),
-                        if (request.hasPhoto) ...[
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.photo_outlined,
-                            size: 16,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        Expanded(
+                          child: Text(
+                            request.equipmentName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ],
+                        ),
+                        if (request.hasPhoto)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Icon(
+                              Icons.photo_outlined,
+                              size: 16,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                       ],
                     ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month_outlined,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            duration == null
+                                ? formatDateRange(
+                                    request.dateNeeded,
+                                    request.returnDate,
+                                  )
+                                : '${formatDateRange(request.dateNeeded, request.returnDate)} · $duration',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    StatusChip(request.status),
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(width: 6),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.chevron_right_rounded, color: color, size: 20),
               ),
             ],
           ),

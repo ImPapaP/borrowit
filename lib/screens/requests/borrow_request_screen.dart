@@ -232,6 +232,10 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
                 ),
               ],
             ),
+            if (_dateNeeded != null && _returnDate != null) ...[
+              const SizedBox(height: 12),
+              _LoanLength(start: _dateNeeded!, end: _returnDate!),
+            ],
             const SizedBox(height: 24),
 
             const SectionLabel('Purpose'),
@@ -242,7 +246,6 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
                 hintText: 'e.g. Group report presentation for IT 301',
-                border: OutlineInputBorder(),
               ),
               validator: (value) => (value == null || value.trim().length < 5)
                   ? 'Please describe the purpose (at least 5 characters).'
@@ -359,11 +362,76 @@ class _DateField extends StatelessWidget {
         isEmpty: value == null,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
           errorText: showError ? 'Required' : null,
           suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
         ),
         child: Text(value == null ? '' : formatDate(value)),
+      ),
+    );
+  }
+}
+
+/// "Borrowing for 3 days" strip shown once both dates are picked.
+class _LoanLength extends StatelessWidget {
+  const _LoanLength({required this.start, required this.end});
+
+  final DateTime start;
+  final DateTime end;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final days = dateOnly(end).difference(dateOnly(start)).inDays + 1;
+    final share = (days / maxBorrowDays).clamp(0.0, 1.0);
+    final color = theme.colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.timelapse_rounded, color: color, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  days == 1 ? 'Borrowing for 1 day' : 'Borrowing for $days days',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+              ),
+              Text(
+                'max $maxBorrowDays',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: share,
+              minHeight: 8,
+              color: color,
+              backgroundColor: color.withValues(alpha: 0.15),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pick up ${formatDate(start)} · return by ${formatDate(end)}',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

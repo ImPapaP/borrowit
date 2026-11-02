@@ -30,6 +30,9 @@ dependencies:
   # Date formatting
   intl: ^0.20.2
 
+  # App font (Plus Jakarta Sans)
+  google_fonts: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/notification_service.dart';
 import '../services/request_watcher.dart';
+import '../widgets/common.dart';
 import 'equipment/equipment_list_view.dart';
 import 'requests/history_view.dart';
 import 'requests/my_requests_view.dart';
@@ -100,46 +101,113 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  static const _destinations = [
+    (Icons.devices_other_outlined, Icons.devices_other, 'Equipment'),
+    (Icons.assignment_outlined, Icons.assignment, 'My Requests'),
+    (Icons.history_outlined, Icons.history, 'History'),
+  ];
+
+  void _selectTab(int index) => setState(() => _tab = index);
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= 900;
+
+    final pages = IndexedStack(
+      index: _tab,
+      children: [
+        EquipmentListView(
+          userName: widget.user.displayName,
+          uid: widget.user.uid,
+        ),
+        MyRequestsView(uid: widget.user.uid),
+        HistoryView(uid: widget.user.uid),
+      ],
+    );
+
+    final initial = (widget.user.displayName ?? widget.user.email ?? '?')
+        .trim();
+    final accountButton = Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: InkWell(
+        onTap: _showAccount,
+        customBorder: const CircleBorder(),
+        child: CircleAvatar(
+          radius: 18,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          child: Text(
+            initial.isEmpty ? '?' : initial[0].toUpperCase(),
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (wide) {
+      // Website on a laptop or desktop: side navigation and a centered page.
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_titles[_tab]),
+          actions: [accountButton],
+        ),
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            NavigationRail(
+              extended: width >= 1200,
+              selectedIndex: _tab,
+              onDestinationSelected: _selectTab,
+              labelType: width >= 1200
+                  ? NavigationRailLabelType.none
+                  : NavigationRailLabelType.all,
+              leading: const Padding(
+                padding: EdgeInsets.only(top: 8, bottom: 16),
+                child: AppLogo(size: 44),
+              ),
+              destinations: [
+                for (final (icon, selected, label) in _destinations)
+                  NavigationRailDestination(
+                    icon: Icon(icon),
+                    selectedIcon: Icon(selected),
+                    label: Text(label),
+                  ),
+              ],
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1180),
+                  child: pages,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_tab]),
-        actions: [
-          IconButton(
-            tooltip: 'Account',
-            icon: const Icon(Icons.account_circle_outlined),
-            onPressed: _showAccount,
-          ),
-        ],
+        actions: [accountButton],
       ),
-      body: IndexedStack(
-        index: _tab,
-        children: [
-          const EquipmentListView(),
-          MyRequestsView(uid: widget.user.uid),
-          HistoryView(uid: widget.user.uid),
-        ],
-      ),
+      body: pages,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (index) => setState(() => _tab = index),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.devices_other_outlined),
-            selectedIcon: Icon(Icons.devices_other),
-            label: 'Equipment',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment),
-            label: 'My Requests',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'History',
-          ),
+        onDestinationSelected: _selectTab,
+        destinations: [
+          for (final (icon, selected, label) in _destinations)
+            NavigationDestination(
+              icon: Icon(icon),
+              selectedIcon: Icon(selected),
+              label: label,
+            ),
         ],
       ),
     );

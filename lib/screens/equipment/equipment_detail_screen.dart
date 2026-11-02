@@ -88,7 +88,7 @@ class _EquipmentDetailScreenState extends State<EquipmentDetailScreen> {
                       ColoredBox(color: style.color.withValues(alpha: 0.10)),
                       Hero(
                         tag: 'equipment-${item.id}',
-                        child: EquipmentImage(item.image, fit: BoxFit.contain),
+                        child: EquipmentImage(item.image),
                       ),
                       // Fade into the page at the bottom.
                       DecoratedBox(
@@ -113,7 +113,7 @@ class _EquipmentDetailScreenState extends State<EquipmentDetailScreen> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 860),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

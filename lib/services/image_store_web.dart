@@ -1,12 +1,18 @@
 // Web version: photos are saved in this browser's storage on the student's
 // own device (nothing is uploaded). Browsers allow about 5 MB per website,
 // which is room for roughly 20-30 photos at the size LocalImageService picks.
+//
+// A copy can also be downloaded as a file, so it shows up in the device's
+// Downloads folder (and in Files / Gallery on phones).
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web/web.dart' as web;
 
 final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
 
@@ -38,4 +44,24 @@ Future<Uint8List?> loadPhoto(String fileName) async {
 
 Future<void> deletePhoto(String fileName) async {
   await _prefs.remove(_key(fileName));
+}
+
+/// Downloads [bytes] as a file named [downloadName]. The browser saves it to
+/// the device's Downloads folder (some browsers ask first).
+bool downloadCopy(Uint8List bytes, String downloadName, String mimeType) {
+  final blob = web.Blob(
+    <JSAny>[bytes.toJS].toJS,
+    web.BlobPropertyBag(type: mimeType),
+  );
+  final url = web.URL.createObjectURL(blob);
+  final anchor = web.HTMLAnchorElement()
+    ..href = url
+    ..download = downloadName
+    ..style.display = 'none';
+  web.document.body?.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Give the browser time to start the download before freeing the data.
+  Timer(const Duration(minutes: 1), () => web.URL.revokeObjectURL(url));
+  return true;
 }

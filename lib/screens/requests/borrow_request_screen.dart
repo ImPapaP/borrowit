@@ -115,6 +115,16 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
     final user = AuthService.instance.currentUser;
     if (user == null) return;
 
+    // Website: download the student's own copy of the photo. This runs right
+    // away, while the tap still counts as a user action, so browsers allow it.
+    final photoBytes = _photoBytes;
+    final downloaded = photoBytes != null &&
+        LocalImageService.instance.saveCopyToDownloads(
+          photoBytes,
+          equipmentName: widget.equipment.name,
+          date: dateNeeded,
+        );
+
     setState(() => _submitting = true);
     String? savedFileName;
     try {
@@ -136,8 +146,11 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
 
       if (!mounted) return;
       _showMessage(
-        'Request for ${widget.equipment.name} submitted. '
-        'Track it in My Requests.',
+        downloaded
+            ? 'Request for ${widget.equipment.name} submitted. A copy of the '
+                'photo was sent to your Downloads.'
+            : 'Request for ${widget.equipment.name} submitted. '
+                'Track it in My Requests.',
       );
       Navigator.of(context).pop();
     } catch (error) {
@@ -239,8 +252,12 @@ class _BorrowRequestScreenState extends State<BorrowRequestScreen> {
 
             const SectionLabel('Attach a photo (optional)'),
             Text(
-              'For example, your school ID or a signed request letter. '
-              'The photo is saved on this device only.',
+              LocalImageService.instance.canSaveToDownloads
+                  ? 'For example, your school ID or a signed request letter. '
+                      'The photo is saved on this device only, and a copy '
+                      'goes to your Downloads when you submit.'
+                  : 'For example, your school ID or a signed request letter. '
+                      'The photo is saved on this device only.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

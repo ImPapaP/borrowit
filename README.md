@@ -93,7 +93,7 @@ Then publish the security rules (step 6 below) and change request statuses in Fi
 
 | Feature | Phone app | Website |
 |---|---|---|
-| Attached photos | Saved as a file on the phone | Saved in that browser's storage (about 20–30 photos fit) |
+| Attached photos | Saved as a file on the phone | Saved in that browser's storage (about 20–30 photos fit), and a copy downloads to the device's Downloads on submit |
 | Status changes | Phone notification | Message at the bottom of the screen, with a **View** button |
 | Reminders | Automatic + "Set a reminder" | Not available (button hidden) |
 | Camera | Opens the camera | Opens the camera on phones; file picker on computers |
@@ -228,7 +228,7 @@ Otherwise Android may deliver it a few minutes late.
 |---|---|
 | Equipment pictures | Bundled inside the app: `assets/equipment/` |
 | Photo attached to a request (phone app) | The **phone's storage**, in the app's private folder `request_images/` |
-| Photo attached to a request (website) | That **browser's storage** on the student's device |
+| Photo attached to a request (website) | That **browser's storage** on the student's device, plus a copy in the device's **Downloads** folder (named like `BorrowIT_Laptop_2026-11-05.jpg`). The request page has a **Save to Downloads** button to get it again. |
 
 When a student attaches a photo:
 

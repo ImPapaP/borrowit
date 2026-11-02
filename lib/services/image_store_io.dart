@@ -45,3 +45,8 @@ Future<void> deletePhoto(String fileName) async {
   final file = await _fileFor(fileName);
   if (await file.exists()) await file.delete();
 }
+
+/// Downloads are a website feature. The phone app already keeps the photo
+/// as a file on the phone, so there is nothing extra to do here.
+bool downloadCopy(Uint8List bytes, String downloadName, String mimeType) =>
+    false;

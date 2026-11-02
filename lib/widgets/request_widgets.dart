@@ -85,9 +85,21 @@ class RequestCard extends StatelessWidget {
 /// Shows a photo saved on this device by LocalImageService.
 /// Tap it to view full screen.
 class LocalRequestImage extends StatefulWidget {
-  const LocalRequestImage({super.key, required this.fileName, this.height = 220});
+  const LocalRequestImage({
+    super.key,
+    required this.fileName,
+    this.equipmentName,
+    this.date,
+    this.height = 220,
+  });
 
   final String fileName;
+
+  /// Used to name the file when the student saves a copy to Downloads
+  /// (website only). Leave null to hide the "Save to Downloads" button.
+  final String? equipmentName;
+  final DateTime? date;
+
   final double height;
 
   @override
@@ -146,7 +158,7 @@ class _LocalRequestImageState extends State<LocalRequestImage> {
             ),
           );
         }
-        return GestureDetector(
+        final photo = GestureDetector(
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => _FullScreenPhoto(bytes: bytes),
@@ -162,7 +174,42 @@ class _LocalRequestImageState extends State<LocalRequestImage> {
             ),
           ),
         );
+
+        final equipmentName = widget.equipmentName;
+        if (equipmentName == null ||
+            !LocalImageService.instance.canSaveToDownloads) {
+          return photo;
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            photo,
+            const SizedBox(height: 4),
+            TextButton.icon(
+              onPressed: () => _saveToDownloads(bytes, equipmentName),
+              icon: const Icon(Icons.download_outlined),
+              label: const Text('Save to Downloads'),
+            ),
+          ],
+        );
       },
+    );
+  }
+
+  void _saveToDownloads(Uint8List bytes, String equipmentName) {
+    final saved = LocalImageService.instance.saveCopyToDownloads(
+      bytes,
+      equipmentName: equipmentName,
+      date: widget.date,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          saved
+              ? 'Photo sent to your Downloads.'
+              : 'This browser didn\'t allow the download. Try another browser.',
+        ),
+      ),
     );
   }
 }

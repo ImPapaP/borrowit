@@ -260,7 +260,11 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
         const SizedBox(height: 20),
         const SectionLabel('Attached photo'),
         if (request.hasPhoto)
-          LocalRequestImage(fileName: request.imageFileName!)
+          LocalRequestImage(
+            fileName: request.imageFileName!,
+            equipmentName: request.equipmentName,
+            date: request.dateNeeded,
+          )
         else
           Text(
             'No photo attached.',

@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// BorrowIT security rules.
+// Paste this into Firebase console > Firestore Database > Rules > Publish.
+// (Edits you make in the Firebase console itself are not limited by these
+// rules, so staff can still add equipment and change request statuses there.)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Student profiles: each student can only read and write their own.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Equipment catalog: any signed-in student can read it.
+    match /equipment/{equipmentId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Borrow requests.
+    match /requests/{requestId} {
+      // Open one request. (resource == null means it was cancelled.)
+      allow get: if signedIn()
+        && (resource == null || resource.data.userId == request.auth.uid);
+
+      // List requests: only your own. The app always filters by userId.
+      allow list: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      // Create: only for yourself, and it must start as Pending.
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.purpose is string
+        && request.resource.data.dateNeeded is timestamp
+        && request.resource.data.returnDate is timestamp
+        && request.resource.data.returnDate >= request.resource.data.dateNeeded;
+
+      // Cancel: students can delete their own request while it is Pending.
+      allow delete: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == 'Pending';
+
+      // Status changes (Approved, Borrowed, Returned, Rejected) are made by
+      // staff in the Firebase console.
+      allow update: if false;
+    }
+  }
+}

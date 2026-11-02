@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    $FLUTTER_BASE_HREF is replaced with the base href during `flutter build web`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BorrowIT: browse school equipment and submit borrowing requests.">
+  <meta name="theme-color" content="#2F5BEA">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="BorrowIT">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>BorrowIT</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body { margin: 0; background: #FAF8FF; }
+    @media (prefers-color-scheme: dark) { body { background: #121318; } }
+    /* Sits behind the app (z-index -1), so Flutter covers it once it draws. */
+    #loading {
+      position: fixed; inset: 0; z-index: -1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: #45464F;
+    }
+    #loading .mark {
+      width: 64px; height: 64px; border-radius: 18px; background: #3556C8;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { transform: scale(0.9); opacity: 0.7; } }
+    @media (prefers-color-scheme: dark) { #loading { color: #C6C5D2; } }
+  </style>
+</head>
+<body>
+  <div id="loading"><div class="mark"></div><div>Loading BorrowIT…</div></div>
+  <script>
+    // Remove the loading screen once Flutter draws its first frame.
+    window.addEventListener('flutter-first-frame', function () {
+      var el = document.getElementById('loading');
+      if (el) el.remove();
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

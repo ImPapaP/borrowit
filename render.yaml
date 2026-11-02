@@ -1,0 +1,15 @@
+# Render Blueprint for BorrowIT.
+# Builds the Flutter web app and serves it as a static site.
+# Every commit to the main branch rebuilds and redeploys the site.
+services:
+  - type: web
+    name: borrowit
+    runtime: static
+    buildCommand: bash render-build.sh
+    staticPublishPath: ./build/web
+    autoDeployTrigger: commit
+    headers:
+      # Always check for a new version, so edits show up right after a deploy.
+      - path: /*
+        name: Cache-Control
+        value: no-cache

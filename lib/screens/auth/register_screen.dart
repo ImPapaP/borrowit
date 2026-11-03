@@ -33,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register() async {
     FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
       await AuthService.instance.register(
@@ -119,8 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           icon: Icon(_hidePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined),
-                          onPressed: () =>
-                              setState(() => _hidePassword = !_hidePassword),
+                          onPressed: () => _hidePassword = !_hidePassword,
                         ),
                       ),
                       validator: (value) => (value == null || value.length < 6)

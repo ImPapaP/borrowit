@@ -33,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register() async {
     FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
       await AuthService.instance.register(

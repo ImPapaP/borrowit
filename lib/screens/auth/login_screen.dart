@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     FocusScope.of(context).unfocus();
-    if (_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
       await AuthService.instance.signIn(
